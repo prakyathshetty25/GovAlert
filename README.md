@@ -1,31 +1,7 @@
 Project Structure
 Using the Next.js App Router, this structure separates the public user experience from the secure administrative dashboard, keeping your components and database logic cleanly organized.
-gov-alert/
-├── src/
-│   ├── app/
-│   │   ├── (admin)/               # Route group for govt staff
-│   │   │   ├── dashboard/         # Admin metrics and issue list
-│   │   │   └── layout.tsx         # Admin navbar/sidebar layout
-│   │   ├── (user)/                # Route group for residents
-│   │   │   ├── report/            # Issue submission form
-│   │   │   ├── my-issues/         # Resident's past reports
-│   │   │   └── layout.tsx         # Public-facing layout
-│   │   ├── auth/                  # Supabase Auth routes (login/signup)
-│   │   ├── layout.tsx             # Root layout (fonts, providers)
-│   │   └── page.tsx               # Landing page
-│   ├── components/
-│   │   ├── ui/                    # Reusable Tailwind components (buttons, inputs)
-│   │   ├── forms/                 # Report form, image uploader
-│   │   └── admin/                 # Data tables, status badges, charts
-│   ├── lib/
-│   │   ├── supabase/
-│   │   │   ├── client.ts          # Supabase browser client
-│   │   │   └── server.ts          # Supabase server client
-│   │   └── utils.ts               # Helper functions (date formatting, etc.)
-│   └── types/                     # TypeScript definitions for DB schema
-├── public/
-├── tailwind.config.ts
-└── package.json
+<img width="691" height="592" alt="Screenshot from 2026-03-12 22-30-26" src="https://github.com/user-attachments/assets/d7d7086d-1875-409f-9ec7-31eb4068a4a8" />
+
 Step-by-Step Guide
 Step 1: Project Initialization
 Initialize your Next.js project with Tailwind CSS configured: npx create-next-app@latest my-app --typescript --tailwind --eslint.
