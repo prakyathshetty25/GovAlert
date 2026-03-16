@@ -8,12 +8,7 @@ import Navbar from '@/components/Navbar';
 // --- Animation Variants ---
 const fadeInUp = {
   hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } }
-};
-
-const fadeInLeft = {
-  hidden: { opacity: 0, x: -50 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: 'easeOut' } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.42, 0, 1, 1] } }
 };
 
 const staggerContainer = {
@@ -26,7 +21,7 @@ const staggerContainer = {
 
 const floatAnimation = {
   y: [0, -20, 0],
-  transition: { duration: 6, repeat: Infinity, ease: "easeInOut" }
+  transition: { duration: 6, repeat: Infinity, ease: ["easeInOut"] }
 };
 
 export default function GovAlertHomePage() {
@@ -101,7 +96,7 @@ export default function GovAlertHomePage() {
           </motion.div>
         </section>
 
-        {/* NEW: Animated How It Works Section */}
+        {/* Animated How It Works Section */}
         <section id="how-it-works" className="py-24 px-6 sm:px-12 bg-gray-900/30 border-y border-gray-900/50 relative overflow-hidden">
           <div className="max-w-7xl mx-auto">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={staggerContainer} className="text-center mb-16">
@@ -132,7 +127,7 @@ export default function GovAlertHomePage() {
 
       </main>
 
-      {/* NEW: Expanded Multi-Column Footer */}
+      {/* Expanded Multi-Column Footer */}
       <footer className="bg-black text-gray-400 border-t border-gray-900 pt-20 pb-10 px-6 sm:px-12 relative overflow-hidden">
         {/* Footer Glow */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-1/2 bg-blue-900/5 blur-[150px] pointer-events-none"></div>
@@ -178,6 +173,7 @@ export default function GovAlertHomePage() {
                 <input 
                   type="email" 
                   placeholder="Enter your email" 
+                  suppressHydrationWarning={true}
                   className="bg-gray-900 border border-gray-800 text-white text-sm rounded-l-lg px-4 py-2 w-full focus:outline-none focus:border-blue-500 transition-colors"
                 />
                 <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-r-lg transition-colors">
