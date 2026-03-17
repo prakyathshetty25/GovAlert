@@ -1,59 +1,59 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 export async function citizenSignUp(prevState: any, formData: FormData) {
+  const supabase = await createClient(); // NEW: Initialize the cookie-aware client
+  
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const fullName = formData.get('name') as string;
 
-  // 1. Create the user in Supabase Auth
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
     password,
   });
 
   if (authError || !authData.user) {
-    console.error('Signup Error:', authError?.message);
-    return { error: authError?.message };
+    return { error: authError?.message || 'Failed to sign up.' };
   }
 
-  // 2. Save their extra details into the profiles table
   const { error: profileError } = await supabase
     .from('profiles')
     .insert([
       {
-        id: authData.user.id, // Link to the Auth User
+        id: authData.user.id,
         full_name: fullName,
         role: 'citizen',
       }
     ]);
 
- if (profileError) {
-    console.error('FULL ERROR:', profileError);
-    return { error: `Supabase Error: ${profileError.message} (Code: ${profileError.code})` };
+  if (profileError) {
+    return { error: `Profile Error: ${profileError.message}` };
   }
 
-  // 3. Redirect to their dashboard on success
   redirect('/dashboard');
 }
 
 export async function smartLogin(prevState: any, formData: FormData) {
+  const supabase = await createClient(); // NEW: Initialize the cookie-aware client
+  
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  // 1. Authenticate the user
+  // 1. Authenticate the user (This now sets the cookie automatically!)
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (authError || !authData.user) {
-    return { error: 'Invalid email or password.' };
+    // We now show the EXACT error (e.g., "Invalid login credentials")
+    return { error: authError?.message || 'Invalid email or password.' };
   }
 
-  // 2. Fetch their role from the profiles table
+  // 2. Fetch their role
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
