@@ -56,7 +56,7 @@ export default function GovAlertHomePage() {
             </motion.h1>
             
             <motion.p variants={fadeInUp} className="max-w-2xl mx-auto text-lg sm:text-xl text-gray-400 mb-10">
-              Snap a photo of a pothole, litter, or broken streetlight. We instantly route it to the right department and track it until it's fixed.
+              Snap a photo of a pothole, litter, or broken streetlight. We instantly route it to the right department and track it until it&apos;s fixed.
             </motion.p>
             
             <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row justify-center gap-4">

@@ -3,12 +3,12 @@
 import { createClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
-export async function citizenSignUp(prevState: any, formData: FormData) {
+export async function citizenSignUp(prevState: unknown, formData: FormData) {
   const supabase = await createClient(); 
   
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const fullName = formData.get('name') as string;
+  const email = (formData.get('email') ?? '') as string;
+  const password = (formData.get('password') ?? '') as string;
+  const fullName = (formData.get('name') ?? '') as string;
 
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email,
@@ -36,11 +36,11 @@ export async function citizenSignUp(prevState: any, formData: FormData) {
   redirect('/dashboard');
 }
 
-export async function smartLogin(prevState: any, formData: FormData) {
+export async function smartLogin(prevState: unknown, formData: FormData) {
   const supabase = await createClient(); 
   
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  const email = (formData.get('email') ?? '') as string;
+  const password = (formData.get('password') ?? '') as string;
 
   const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
     email,
@@ -65,7 +65,7 @@ export async function smartLogin(prevState: any, formData: FormData) {
 }
 
 // Google OAuth signin - used as a form action during redirect flow
-export async function signInWithGoogle(formData: FormData) {
+export async function signInWithGoogle() {
   const supabase = await createClient();
   
   // Get the base URL from environment or use the request info

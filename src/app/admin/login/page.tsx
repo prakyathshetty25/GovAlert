@@ -17,7 +17,7 @@ export default function LoginPage() {
           </Link>
           <h2 className="mt-6 text-2xl font-bold text-white">Sign in to your account</h2>
           <p className="mt-2 text-sm text-gray-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="font-medium text-blue-500 hover:text-blue-400 transition-colors">
               Sign up here
             </Link>
@@ -48,8 +48,6 @@ export default function LoginPage() {
             <span className="px-2 bg-gray-900 text-gray-500">Or continue with email</span>
           </div>
         </div>
-        {/* --------------------------- */}
-
         <form className="space-y-6" action={formAction}>
           
           {state?.error && (
@@ -68,6 +66,7 @@ export default function LoginPage() {
                 required
                 className="appearance-none relative block w-full px-4 py-3 bg-gray-950 border border-gray-700 placeholder-gray-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                 placeholder="you@example.com"
+                suppressHydrationWarning={true}
               />
             </div>
             <div>
@@ -79,6 +78,7 @@ export default function LoginPage() {
                 required
                 className="appearance-none relative block w-full px-4 py-3 bg-gray-950 border border-gray-700 placeholder-gray-500 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                 placeholder="Enter your password"
+                suppressHydrationWarning={true}
               />
             </div>
           </div>

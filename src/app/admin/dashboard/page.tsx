@@ -1,5 +1,9 @@
-import React from 'react';
+"use client";
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 // Mock data to populate the dashboard table
 const recentReports = [
@@ -11,6 +15,81 @@ const recentReports = [
 ];
 
 export default function AdminDashboard() {
+  const [user, setUser] = useState<unknown>(null);
+  const [profile, setProfile] = useState<unknown>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  );
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: userData, error } = await supabase.auth.getUser();
+
+        if (error || !userData?.user) {
+          router.push('/admin/login');
+          return;
+        }
+
+        // Fetch user profile and check role
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userData.user.id)
+          .single();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          router.push('/admin/login');
+          return;
+        }
+
+        if (profileData.role !== 'admin') {
+          router.push('/dashboard');
+          return;
+        }
+
+        setProfile(profileData);
+      } catch (error) {
+        console.error('Auth check error:', error);
+        router.push('/admin/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          router.push('/admin/login');
+        } else {
+          setUser(session.user);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [router, supabase]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user || !profile || profile.role !== 'admin') {
+    return null; // Will redirect
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 flex font-sans text-gray-200">
       
@@ -38,9 +117,15 @@ export default function AdminDashboard() {
           </Link>
         </nav>
         <div className="p-4 border-t border-gray-800">
-          <Link href="/admin/login" className="block px-4 py-2 text-sm text-red-400 hover:bg-red-950/30 rounded-lg transition-colors text-center border border-red-900/30">
+          <button 
+            onClick={async () => {
+              await supabase.auth.signOut();
+              router.push('/admin/login');
+            }}
+            className="block w-full px-4 py-2 text-sm text-red-400 hover:bg-red-950/30 rounded-lg transition-colors text-center border border-red-900/30"
+          >
             Log Out
-          </Link>
+          </button>
         </div>
       </aside>
 

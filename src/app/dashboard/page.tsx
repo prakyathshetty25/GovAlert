@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 // --- Mock Data ---
 const myReports = [
@@ -29,6 +31,76 @@ const fadeUp = {
 };
 
 export default function CitizenDashboard() {
+  const [user, setUser] = useState<unknown>(null);
+  const [profile, setProfile] = useState<unknown>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+  );
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: userData, error } = await supabase.auth.getUser();
+
+        if (error || !userData?.user) {
+          router.push('/login');
+          return;
+        }
+
+        setUser(userData.user);
+
+        // Fetch user profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userData.user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') { // PGRST116 is "not found"
+          console.error('Error fetching profile:', profileError);
+        } else {
+          setProfile(profileData);
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        router.push('/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_OUT' || !session) {
+          router.push('/login');
+        } else {
+          setUser(session.user);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [router, supabase]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
+
   return (
     <div className="min-h-screen bg-gray-950 flex font-sans text-gray-200 overflow-hidden">
       
@@ -55,11 +127,19 @@ export default function CitizenDashboard() {
         {/* User Profile Snippet */}
         <div className="p-4 border-t border-gray-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold shadow-lg">
-            JD
+            {(profile?.full_name || user?.email || 'U')[0].toUpperCase()}
           </div>
           <div>
-            <div className="text-sm font-bold text-white">Jane Doe</div>
-            <Link href="/" className="text-xs text-gray-500 hover:text-gray-300 transition-colors">Sign Out</Link>
+            <div className="text-sm font-bold text-white">{profile?.full_name || user?.email?.split('@')[0]}</div>
+            <button 
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.push('/');
+              }}
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </aside>
@@ -74,8 +154,10 @@ export default function CitizenDashboard() {
           {/* Welcome Header */}
           <motion.header initial="hidden" animate="visible" variants={fadeUp} className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">Welcome back, Jane! 👋</h1>
-              <p className="text-gray-400">Here is the latest impact you've made in your community.</p>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
+                Welcome back, {profile?.full_name || user?.email?.split('@')[0] || 'User'}! 👋
+              </h1>
+              <p className="text-gray-400">Here is the latest impact you&apos;ve made in your community.</p>
             </div>
             <Link href="/report" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20 flex items-center gap-2 whitespace-nowrap">
               <span>Report New Issue</span>
